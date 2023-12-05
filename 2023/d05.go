@@ -43,36 +43,35 @@ func main() {
 		}
 	}
 
+	// part 1
 	var smallest_location int64 = math.MaxInt64
-	for seedIndex := 0; seedIndex < len(seeds); seedIndex++ {
-		seed := seeds[seedIndex]
 
-		for i := 0; i < len(steps); i++ {
-			step := steps[i]
+	for i := 0; i < len(seeds); i++ {
+		identifier := calculate_location(steps, seeds[i])
 
-			for _, step_struct := range step {
-				min := step_struct.source
-				max := step_struct.source + step_struct.step_range
-				// 79    99
-				// source = 50 (min) + 48 = 98 (max)
-				// destincation = 52 + 48 = 100
-				// destination - source = 2
-				// 79 + 2 = 81
-
-				if seed >= min && seed < max {
-					seed = seed + step_struct.destination - step_struct.source
-					//fmt.Println(seed, min, max, step_struct)
-					break
-				}
-			}
-		}
-
-		if seed < smallest_location {
-			smallest_location = seed
+		if identifier < smallest_location {
+			smallest_location = identifier
 		}
 	}
 
-	fmt.Println("Smallest location: ", smallest_location)
+	fmt.Println("Part 1: ", smallest_location)
+
+	// part 2
+	var smallest_location_from_range int64 = math.MaxInt64
+
+	for i := int64(0); i < int64(len(seeds)); i += 2 {
+		for j := int64(0); j < seeds[i+1]; j++ {
+			seed := seeds[i] + j
+			identifier := calculate_location(steps, seed)
+
+			if identifier < smallest_location_from_range {
+				smallest_location_from_range = identifier
+			}
+		}
+
+	}
+
+	fmt.Println("Part 2: ", smallest_location_from_range)
 }
 
 func parse_numbers(line string) []int64 {
@@ -87,6 +86,19 @@ func parse_numbers(line string) []int64 {
 	return numbers
 }
 
-func calculate_next_step() {
+func calculate_location(steps [][]Step, currentId int64) int64 {
+	for i := 0; i < len(steps); i++ {
+		step := steps[i]
 
+		for _, step_struct := range step {
+			min := step_struct.source
+			max := step_struct.source + step_struct.step_range
+
+			if currentId >= min && currentId < max {
+				currentId = currentId + step_struct.destination - step_struct.source
+				break
+			}
+		}
+	}
+	return currentId
 }
