@@ -9,12 +9,6 @@ import (
 	"strings"
 )
 
-const (
-	Card_Details int = 0
-	Winning_Numbers
-	Owned_Numbers
-)
-
 func main() {
 	readFile, err := os.Open("./d04_prod")
 
