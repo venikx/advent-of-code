@@ -59,6 +59,10 @@ func main() {
 	// part 2
 	var smallest_location_from_range int64 = math.MaxInt64
 
+	// Optimise: Compare seed ranges instead of individual identifiers
+	// if range doesn't fit in, don't modify
+	// if the range fits in completely, adjust the starting range
+	// if range fits not fully, decrement current range, start a new seed, with remaining range
 	for i := int64(0); i < int64(len(seeds)); i += 2 {
 		for j := int64(0); j < seeds[i+1]; j++ {
 			seed := seeds[i] + j
