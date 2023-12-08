@@ -34,18 +34,28 @@ func main() {
 	lines := strings.Split(string(b), "\n")
 	lines = lines[:len(lines)-1]
 
-	qs(lines, 0, len(lines)-1) // last line is empty char
-
+	// part 1
+	qs(lines, 0, len(lines)-1, false) // last line is empty char
 	sum := 0
 	for i, line := range lines {
-		_, _, bet := parse_line(line)
+		_, _, bet := parse_line(line, false)
 		sum += (i + 1) * bet
 	}
-
 	fmt.Println(sum)
+
+	// part 2
+	qs(lines, 0, len(lines)-1, true) // last line is empty char
+	sum_with_joker := 0
+
+	for i, line := range lines {
+		_, _, bet := parse_line(line, false)
+		sum_with_joker += (i + 1) * bet
+	}
+	fmt.Println(sum_with_joker)
+
 }
 
-func parse_line(line string) (string, int8, int) {
+func parse_line(line string, with_joker bool) (string, int8, int) {
 	s := strings.Split(line, " ")
 	var bid int
 
@@ -55,9 +65,22 @@ func parse_line(line string) (string, int8, int) {
 
 	hand := [13]int8{}
 
+	var max_card rune
 	for _, c := range s[0] {
 		hand[cards[c]] = hand[cards[c]] << 1
 		hand[cards[c]] = hand[cards[c]] | 1
+
+		if with_joker && c != 'J' && hand[cards[c]] > hand[cards[max_card]] {
+			max_card = c
+		}
+	}
+
+	if with_joker {
+		for hand[cards['J']] > 0 {
+			hand[cards[max_card]] = hand[cards[max_card]] << 1
+			hand[cards[max_card]] = hand[cards[max_card]] | 1
+			hand[cards['J']] = hand[cards['J']] >> 1
+		}
 	}
 
 	var sum int8 = 0
@@ -68,9 +91,9 @@ func parse_line(line string) (string, int8, int) {
 	return s[0], sum, bid
 }
 
-func needs_sorting(line_a string, line_b string) bool {
-	hand_a, hand_value_a, _ := parse_line(line_a)
-	hand_b, hand_value_b, _ := parse_line(line_b)
+func needs_sorting(line_a string, line_b string, with_joker bool) bool {
+	hand_a, hand_value_a, _ := parse_line(line_a, with_joker)
+	hand_b, hand_value_b, _ := parse_line(line_b, with_joker)
 
 	if hand_value_a < hand_value_b {
 		return true
@@ -83,6 +106,11 @@ func needs_sorting(line_a string, line_b string) bool {
 				continue
 			}
 
+			if with_joker && (card_a == 'J' || card_b == 'J') {
+				return card_a == 'J'
+
+			}
+
 			return cards[card_a] < cards[card_b]
 		}
 	}
@@ -90,12 +118,12 @@ func needs_sorting(line_a string, line_b string) bool {
 	return false
 }
 
-func partition(arr []string, lo int, hi int) int {
+func partition(arr []string, lo int, hi int, with_joker bool) int {
 	pivot := arr[hi]
 	idx := lo - 1
 
 	for i := lo; i < hi; i++ {
-		if needs_sorting(arr[i], pivot) {
+		if needs_sorting(arr[i], pivot, with_joker) {
 			idx++
 
 			tmp := arr[i]
@@ -111,12 +139,12 @@ func partition(arr []string, lo int, hi int) int {
 	return idx
 }
 
-func qs(arr []string, lo int, hi int) {
+func qs(arr []string, lo int, hi int, with_joker bool) {
 	if lo >= hi {
 		return
 	}
 
-	pivotIdx := partition(arr, lo, hi)
-	qs(arr, lo, pivotIdx-1)
-	qs(arr, pivotIdx, hi)
+	pivotIdx := partition(arr, lo, hi, with_joker)
+	qs(arr, lo, pivotIdx-1, with_joker)
+	qs(arr, pivotIdx, hi, with_joker)
 }
