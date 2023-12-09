@@ -50,4 +50,37 @@ func main() {
 	}
 
 	fmt.Println(jumps)
+
+	// part 2
+	steps := 1
+	for idx := range ghost_paths {
+		jumps := 0
+
+		for i := 0; !strings.Contains(ghost_paths[idx], "Z"); i = (i + 1) % len(input) {
+			c := input[i]
+
+			if c == 'L' {
+				ghost_paths[idx] = paths[ghost_paths[idx]][0]
+			} else if c == 'R' {
+				ghost_paths[idx] = paths[ghost_paths[idx]][1]
+			}
+			jumps++
+		}
+
+		steps = lcm(steps, jumps)
+	}
+
+	fmt.Println(steps)
+}
+
+func gcd(a int, b int) int { // greater common denominator
+	if b == 0 {
+		return a
+	}
+
+	return gcd(b, a%b)
+}
+
+func lcm(a int, b int) int { // least common denominator
+	return (a * b) / gcd(a, b)
 }
